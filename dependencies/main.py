@@ -3,6 +3,57 @@ import pandas as pd # type: ignore
 import datetime
 import os
 
+# tkinter imports 
+import tkinter as tk
+from tkinter import filedialog, messagebox, ttk;
+
+class CardPriceChecker():
+
+    #initalize the class
+    def __init__(self):
+        #initialize class variables 
+        self.card_details = {} # dictionary to store card details
+
+        # Initialize the GUI window with Tkinter 
+        self.root = tk.Tk() 
+
+        #set title and geometry of the window 
+        self.root.title("MTG Card Price Checker")
+        self.root.geometry("1000x1000")
+
+        # create a menu bar 
+        self.menuBar = tk.Menu(self.root) 
+
+        # new menu bar option for file operations 
+        self.fileMenu = tk.Menu(self.menuBar, tearoff=0)
+        self.fileMenu.add_command(label="open", command=self.open_file)# add a command to open a file 
+
+        self.menuBar.add_cascade(menu=self.fileMenu, label="File") # add the file menu to the menu bar
+        self.root.config(menu=self.menuBar) # configure the root window to use the menu bar
+
+        self.root.config(bg="gray") #set the background color of the window
+
+        self.root.mainloop() #create the 
+
+    #open a csv file from storage 
+    def open_file(self):
+        fileName = filedialog.askopenfile(title="Open File", filetypes=(("CSV files", "*.csv"),)) # open a file dialog to select a file, not filetypes expects a tuple hence the , at the end of *.csv
+        
+        self.card_details = pd.read_csv(fileName) # read the csv file and store it in the card_details dictionary
+
+        print(self.card_details) # print the card details
+
+    def display_card_data(self): 
+        #check if attribute 'card_details' already exists 
+        if hasattr(self, 'card_details'):
+            self.card_details.destroy() # destroy the previous card details if it exists
+
+        cols = list(self.card_details.columns)
+
+        self.card_details = ttk.Treeview(self.root, columns=cols, show='headings') # create a treeview widget to display the card details
+        self.card_details.pack(fill=tk.BOTH, expand=True) # pack the treeview widget to fill the window
+        #TODO continue here, display the data objects, add scrollbar, searchbar, sort by column, etc. 
+        
 def searchExact(card_name): # search exact card name
     url = f"https://api.scryfall.com/cards/named?exact={card_name.replace(' ', '+')}"
     response = requests.get(url)
@@ -52,5 +103,5 @@ def main():
         searchExact(card_name)
 
 if __name__ == "__main__":
-    main()
-
+    #main()
+    CardPriceChecker()
