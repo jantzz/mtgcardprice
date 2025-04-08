@@ -10,7 +10,6 @@ A Python desktop application using Tkinter that allows users to search for Magic
 - View current price and foil price
 - See card set information and EDHREC rank (if available)
 - Display a list of popular cards
-- Intuitive, user-friendly GUI built with Tkinter
 
 ---
 
