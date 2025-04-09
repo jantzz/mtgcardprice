@@ -67,6 +67,9 @@ class CardPriceChecker():
         self.search_entry = tk.Entry(self.search_bar_frame, font=("Arial", 16)) # create an entry widget for the card name
         self.search_entry.grid(row=0, column=1, padx=2, pady=2) # pack the entry widget to fill the window
 
+        # bind enter to the search function
+        self.search_entry.bind("<KeyPress>", self.search_shortcut) # bind the search_shortcut function to the entry widget
+
         # button to start search 
         self.search_button = tk.Button(self.search_bar_frame, text="Search", command=self.searchCard) # create a button to search for the card
         self.search_button.grid(row=0, column=2, padx=2, pady=2) # pack the button to fill the window
@@ -99,19 +102,12 @@ class CardPriceChecker():
         self.file_frame = tk.Frame(self.root)
         self.file_frame.pack(side="top", fill=tk.X) 
 
-    #search for a specific card using the API 
-    def searchCard(self): #TODO use multithreading as well for the API call here
-        card_name = self.search_entry.get() # get the card name from the entry widget
-        card_name = card_name.strip() # remove any leading or trailing whitespace
-
-        if card_name == "":
-            messagebox.showwarning("Warning", "Please enter a card name")
-            return
-
+    def find_one_card(self, card_name): # function to find a single card using the API
         url = f"https://api.scryfall.com/cards/named?exact={card_name.replace(' ', '+')}" # create the URL for the API request
+        print("getting single card info for: ", card_name)
         response = requests.get(url) # make a GET request to the API
         card_info = {} # initialize the card_info dictionary
-
+        
         if response.status_code == 200:
             card_data = response.json()
 
@@ -130,7 +126,22 @@ class CardPriceChecker():
             else: 
                 df.to_csv('mtgCardPrice.csv', mode = 'a', index=False)
 
-        self.display_single_Card(card_info)
+            self.root.after( 0 , lambda: self.display_single_Card(card_info)) #use lambda: to call the display_single_Card function after 0 milliseconds not immediately
+        # Think of it like:
+        # Without lambda: “Do this now, and here’s the result.”
+        # With lambda: “Here’s how to do it, run it later.”
+    
+    #search for a specific card using the API 
+    def searchCard(self): #TODO use multithreading as well for the API call here
+        card_name = self.search_entry.get() # get the card name from the entry widget
+        card_name = card_name.strip() # remove any leading or trailing whitespace
+
+        if card_name == "":
+            messagebox.showwarning("Warning", "Please enter a card name")
+            return
+
+        card_thread = threading.Thread(target=self.find_one_card, args=(card_name,))# call the find_one_card function to get the card info note (card_name, ) is a tuple hence the comma at the end
+        card_thread.start()
     
     def display_single_Card(self, data: dict): #data expected to be a list object 
 
@@ -161,6 +172,8 @@ class CardPriceChecker():
         elif data['edhrec_rank'] != None:
             self.card_date_label = tk.Label(self.single_card_frame, text=data['edhrec_rank'], font=("Arial", 16))
             self.card_date_label.grid(row=4, column=0, sticky="nsew")
+
+        self.search_entry.delete(0, tk.END) # clear the entry widget after the search is complete
             
     #display the card data in table format after reading from csv
     def display_card_data(self): 
@@ -266,7 +279,11 @@ class CardPriceChecker():
 
         print(self.card_details) # print the card details
         self.display_card_data() # call the display_card_data function to display the card details
-
+    
+    #function to bind enter to the search function
+    def search_shortcut(self, event): # function to bind control + enter to the search function
+        if event.keysym == 'Return':
+            self.searchCard()
     
 def searchExact(card_name): # search exact card name
     url = f"https://api.scryfall.com/cards/named?exact={card_name.replace(' ', '+')}"
