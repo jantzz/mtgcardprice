@@ -7,6 +7,8 @@ import os
 # tkinter imports 
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk;
+import ttkbootstrap as ttkb # type: ignore
+from ttkbootstrap import Style # type: ignore
 
 class CardPriceChecker():
 
@@ -18,6 +20,7 @@ class CardPriceChecker():
 
         # Initialize the GUI window with Tkinter 
         self.root = tk.Tk() 
+        self.style = Style(theme='darkly') # create a style object with the theme 'darkly'
 
         #set title and geometry of the window 
         self.root.title("MTG Card Price Checker")
@@ -43,73 +46,73 @@ class CardPriceChecker():
         self.root.config(bg="gray") #set the background color of the window
 
         #Frame for the title
-        self.title_frame = tk.Frame(self.root)
+        self.title_frame = ttkb.Frame(self.root)
         self.title_frame.pack(side="top", fill=tk.X) # pack the frame to fill the window
 
-        self.title_label = tk.Label(self.title_frame, text="MTG Card Price Checker", font=("Arial", 24)) # create a label for the title of the window
+        self.title_label = ttkb.Label(self.title_frame, text="MTG Card Price Checker", font=("Arial", 24), anchor="center") # create a label for the title of the window
         self.title_label.pack(side="top", fill=tk.X) # pack the label to fill the window
 
         #separator #1
-        self.title_separator = ttk.Separator(self.root, orient="horizontal") # create a separator for the title
+        self.title_separator = ttkb.Separator(self.root, orient="horizontal") # create a separator for the title
         self.title_separator.pack(side="top", fill=tk.X) # pack the separator to fill the window
 
         #Create the frames, but leave empty so that it can be filled out later 
-        self.top_frame = tk.Frame(self.root) 
+        self.top_frame = ttkb.Frame(self.root) 
         self.top_frame.pack(side="top", fill=tk.X) 
 
         #separator #2
-        self.top_separator = ttk.Separator(self.root, orient="horizontal")
+        self.top_separator = ttkb.Separator(self.root, orient="horizontal")
         self.top_separator.pack(side="top", fill=tk.X)
 
         #search bar frame
-        self.search_frame = tk.Frame(self.root)
+        self.search_frame = ttkb.Frame(self.root)
         self.search_frame.pack(side="top", fill=tk.X) 
 
         # label for searching cards: 
-        self.search_bar_frame = tk.Frame(self.search_frame) # create a new frame for the search bar
+        self.search_bar_frame = ttkb.Frame(self.search_frame) # create a new frame for the search bar
         self.search_bar_frame.grid(row=0, column=0, sticky="nsew") # pack the frame to fill the window
 
         #label to say Search for a card: 
-        self.search_label = tk.Label(self.search_bar_frame, text="Search for a card:", font=("Arial", 16))
+        self.search_label = ttkb.Label(self.search_bar_frame, text="Search for a card:", font=("Arial", 16))
         self.search_label.grid(row=0, column=0, padx=2, pady=2) # pack the label to fill the window
         
         #entry for searching cards
-        self.search_entry = tk.Entry(self.search_bar_frame, font=("Arial", 16)) # create an entry widget for the card name
+        self.search_entry = ttkb.Entry(self.search_bar_frame, font=("Arial", 16)) # create an entry widget for the card name
         self.search_entry.grid(row=0, column=1, padx=2, pady=2) # pack the entry widget to fill the window
 
         # bind enter to the search function
         self.search_entry.bind("<KeyPress>", self.search_shortcut) # bind the search_shortcut function to the entry widget
 
         # button to start search 
-        self.search_button = tk.Button(self.search_bar_frame, text="Search", command=self.searchCard) # create a button to search for the card
+        self.search_button = ttkb.Button(self.search_bar_frame, text="Search", command=self.searchCard) # create a button to search for the card
         self.search_button.grid(row=0, column=2, padx=2, pady=2) # pack the button to fill the window
 
-        self.in_search_separator = ttk.Separator(self.search_frame, orient="vertical")
+        self.in_search_separator = ttkb.Separator(self.search_frame, orient="vertical")
         self.in_search_separator.grid(row=0, column=1, sticky="ns", padx=2, pady=2) # pack the separator to fill the window
 
         #frame for a single card 
-        self.single_card_frame = tk.Frame(self.search_frame)
+        self.single_card_frame = ttkb.Frame(self.search_frame)
         self.single_card_frame.grid(row=0, column=2, sticky="nsew") # pack the frame to fill the window
 
         #separator #3
-        self.popular_separator = ttk.Separator(self.root, orient="horizontal")
+        self.popular_separator = ttkb.Separator(self.root, orient="horizontal")
         self.popular_separator.pack(side="top", fill=tk.X)
 
         #popular cards frame 
-        self.popular_frame = tk.Frame(self.root) 
+        self.popular_frame = ttkb.Frame(self.root) 
         self.popular_frame.pack(side="top", fill=tk.X)
 
         #progress bar 
-        self.progress_bar = ttk.Progressbar(self.popular_frame, orient="horizontal", mode="indeterminate") # create a progress bar widget
+        self.progress_bar = ttkb.Progressbar(self.popular_frame, orient="horizontal", mode="indeterminate") # create a progress bar widget
         self.progress_bar.grid(row=1, column=1) # pack the progress bar to fill the window
         self.progress_bar.grid_remove() #hide the progress bar at first 
 
         #separator #4
-        self.file_separator = ttk.Separator(self.root, orient="horizontal")
+        self.file_separator = ttkb.Separator(self.root, orient="horizontal")
         self.file_separator.pack(side="top", fill=tk.X)
 
         #file data read in frame
-        self.file_frame = tk.Frame(self.root)
+        self.file_frame = ttkb.Frame(self.root)
         self.file_frame.pack(side="top", fill=tk.X) 
 
     def find_one_card(self, card_name): # function to find a single card using the API
