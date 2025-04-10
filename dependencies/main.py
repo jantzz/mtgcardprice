@@ -30,7 +30,6 @@ class CardPriceChecker():
         self.root.mainloop() #create the main loop for the window 
 
     def format_page(self) :
-        #TODO create function to store all the widgets and stuff so that it looks better
         # create a menu bar 
         self.menuBar = tk.Menu(self.root) 
 
@@ -43,11 +42,22 @@ class CardPriceChecker():
 
         self.root.config(bg="gray") #set the background color of the window
 
+        #Frame for the title
+        self.title_frame = tk.Frame(self.root)
+        self.title_frame.pack(side="top", fill=tk.X) # pack the frame to fill the window
+
+        self.title_label = tk.Label(self.title_frame, text="MTG Card Price Checker", font=("Arial", 24)) # create a label for the title of the window
+        self.title_label.pack(side="top", fill=tk.X) # pack the label to fill the window
+
+        #separator #1
+        self.title_separator = ttk.Separator(self.root, orient="horizontal") # create a separator for the title
+        self.title_separator.pack(side="top", fill=tk.X) # pack the separator to fill the window
+
         #Create the frames, but leave empty so that it can be filled out later 
         self.top_frame = tk.Frame(self.root) 
         self.top_frame.pack(side="top", fill=tk.X) 
 
-        #separator #1 
+        #separator #2
         self.top_separator = ttk.Separator(self.root, orient="horizontal")
         self.top_separator.pack(side="top", fill=tk.X)
 
@@ -132,7 +142,7 @@ class CardPriceChecker():
         # With lambda: “Here’s how to do it, run it later.”
     
     #search for a specific card using the API 
-    def searchCard(self): #TODO use multithreading as well for the API call here
+    def searchCard(self): 
         card_name = self.search_entry.get() # get the card name from the entry widget
         card_name = card_name.strip() # remove any leading or trailing whitespace
 
@@ -284,32 +294,6 @@ class CardPriceChecker():
     def search_shortcut(self, event): # function to bind control + enter to the search function
         if event.keysym == 'Return':
             self.searchCard()
-    
-def searchExact(card_name): # search exact card name
-    url = f"https://api.scryfall.com/cards/named?exact={card_name.replace(' ', '+')}"
-    response = requests.get(url)
-
-    if response.status_code == 200:
-        card_data = response.json()
-
-        card_info = {
-            "Name": card_data['name'],
-            "Set" : card_data['set_name'],
-            "Price (USD)" : card_data['prices']['usd'],
-            "Price (Foil)" : card_data['prices']['usd_foil'],
-            "Date searched: " : str(datetime.datetime.today()).split()[0]
-        }
-
-        df = pd.DataFrame([card_info])
-        print(df)
-
-        if os.path.exists('mtgCardPrice.csv'):
-            df.to_csv('mtgCardPrice.csv', mode = 'a', index=False, header=False)
-        else: 
-            df.to_csv('mtgCardPrice.csv', mode = 'a', index=False)
-        
-    else:
-        giveSuggestedNames(card_name)
 
 def giveSuggestedNames(card_name):
     url = f"https://api.scryfall.com/cards/autocomplete?q={card_name.replace(' ','+')}"
@@ -320,18 +304,6 @@ def giveSuggestedNames(card_name):
         suggestions = "\n".join(suggested['data'])
 
         print("Do you mean any of these cards? : \n", suggestions)
-
-def main():
-    print("Welcome to the MTG Price Checker!")
-    # Start a loop that runs until 'exit' is entered
-    while True:
-        card_name = input("Enter the card name or 'exit' to stop: ")
-        
-        if card_name.lower() == 'exit':
-            print("Exiting the program now")
-            break
-
-        searchExact(card_name)
 
 if __name__ == "__main__":
     #main()
