@@ -3,6 +3,7 @@ import pandas as pd # type: ignore
 import threading
 import datetime
 import os
+from Gif import AnimatedGif
 
 # tkinter imports 
 import tkinter as tk
@@ -89,10 +90,10 @@ class CardPriceChecker():
 
         self.in_search_separator = ttkb.Separator(self.search_frame, orient="vertical")
         self.in_search_separator.grid(row=0, column=1, sticky="ns", padx=2, pady=2) # pack the separator to fill the window
-
+        
         #frame for a single card 
         self.single_card_frame = ttkb.Frame(self.search_frame)
-        self.single_card_frame.grid(row=0, column=2, sticky="nsew") # pack the frame to fill the window
+        self.single_card_frame.grid(row=0, column=2, rowspan=2, columnspan=2, sticky="nsew") # pack the frame to fill the window
 
         #separator #3
         self.popular_separator = ttkb.Separator(self.root, orient="horizontal")
@@ -102,10 +103,19 @@ class CardPriceChecker():
         self.popular_frame = ttkb.Frame(self.root) 
         self.popular_frame.pack(side="top", fill=tk.X)
 
-        #progress bar 
-        self.progress_bar = ttkb.Progressbar(self.popular_frame, orient="horizontal", mode="indeterminate") # create a progress bar widget
-        self.progress_bar.grid(row=1, column=1) # pack the progress bar to fill the window
-        self.progress_bar.grid_remove() #hide the progress bar at first 
+        # Configure grid weights to make the space flexible
+        self.popular_frame.columnconfigure(0, weight=1)  # First column (left side)
+        self.popular_frame.columnconfigure(1, weight=2)  # Second column (centered)
+        self.popular_frame.columnconfigure(2, weight=1)  # Third column (right side)
+
+        self.popular_frame.rowconfigure(0, weight=1)     # First row (top)
+        self.popular_frame.rowconfigure(1, weight=2)     # Second row (centered)
+        self.popular_frame.rowconfigure(2, weight=1)     # Third row (bottom)
+
+        #Loading gif
+        self.animated_gif = AnimatedGif(self.popular_frame, "imgs/loading-loading-forever.gif", delay=45) # create an animated gif widget
+        self.animated_gif.grid(row=1, column=1, sticky="nsew") # pack the animated gif to fill the window
+        self.animated_gif.grid_remove() # hide the animated gif at first
 
         #separator #4
         self.file_separator = ttkb.Separator(self.root, orient="horizontal")
@@ -260,8 +270,7 @@ class CardPriceChecker():
 
     def start_fetching(self):
         # Start a new thread to fetch the popular cards
-        self.progress_bar.pack() # show the progress bar
-        self.progress_bar.start() # start the progress bar animation
+        self.animated_gif.grid() # show the loading gif
 
         threading.Thread(target=self.get_populars).start()
 
@@ -280,9 +289,9 @@ class CardPriceChecker():
             messagebox.showerror("Error", "Error fetching popular cards") # show an error message if the request fails
 
     def on_fetched(self):
-        self.progress_bar.stop()
         self.display_popular_cards() # call the display_popular_cards function to display the popular cards
-        self.progress_bar.pack_forget() # hide the progress bar
+        if self.animated_gif.winfo_exists(): # if the animated gif exists hide it 
+            self.animated_gif.grid_remove()
 
     #open a csv file from storage 
     def open_file(self):
@@ -297,16 +306,6 @@ class CardPriceChecker():
     def search_shortcut(self, event): # function to bind control + enter to the search function
         if event.keysym == 'Return':
             self.searchCard()
-
-def giveSuggestedNames(card_name):
-    url = f"https://api.scryfall.com/cards/autocomplete?q={card_name.replace(' ','+')}"
-    response = requests.get(url)
-
-    if response.status_code == 200:
-        suggested = response.json()
-        suggestions = "\n".join(suggested['data'])
-
-        print("Do you mean any of these cards? : \n", suggestions)
 
 if __name__ == "__main__":
     #main()
