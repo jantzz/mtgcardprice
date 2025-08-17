@@ -1,5 +1,5 @@
 import tkinter as tk 
-from PIL import Image, ImageTk, ImageFont, ImageDraw
+from PIL import Image, ImageTk
 from itertools import count
 
 class AnimatedGif(tk.Label):

@@ -144,10 +144,11 @@ class CardPriceChecker():
 
             df = pd.DataFrame([card_info]) # create a dataframe from the card info dictionary
 
-            if os.path.exists('mtgCardPrice.csv'):
-                df.to_csv('mtgCardPrice.csv', mode = 'a', index=False, header=False)
+            if os.path.exists('data/mtgCardPrice.csv'):
+                df.to_csv('data/mtgCardPrice.csv', mode = 'a', index=False, header=False)
             else: 
-                df.to_csv('mtgCardPrice.csv', mode = 'a', index=False)
+                os.makedirs('data', exist_ok=True) # create the data directory if it doesn't exist
+                df.to_csv('data/mtgCardPrice.csv', mode = 'a', index=False)
 
             self.root.after( 0 , lambda: self.display_single_Card(card_info)) #use lambda: to call the display_single_Card function after 0 milliseconds not immediately
         # Think of it like:
@@ -166,7 +167,8 @@ class CardPriceChecker():
         card_thread = threading.Thread(target=self.find_one_card, args=(card_name,))# call the find_one_card function to get the card info note (card_name, ) is a tuple hence the comma at the end
         card_thread.start()
     
-    def display_single_Card(self, data: dict): #data expected to be a list object 
+    #TODO fix display of card data so that it looks better and dispays the card image from the API call as well
+    def display_single_Card(self, data: dict): #data expected to be a dict object 
 
         # Clear previous card info
         for widget in self.single_card_frame.winfo_children():
@@ -233,7 +235,7 @@ class CardPriceChecker():
         self.card_scrollbar.grid(row=2, column=1, sticky="ns") # pack the scrollbar to the right of the treeview widget
     
     #display popular cards from the API 
-    def display_popular_cards(self):
+    def display_popular_cards(self): #TODO fix the displa of popular cards so that scroll bar is stuck to the tree and doesnt move off
         # check if the popular cards attribute exists
         for widget in self.popular_frame.winfo_children():
             widget.destroy()
@@ -264,6 +266,9 @@ class CardPriceChecker():
 
         self.pop_separator = ttk.Separator(self.popular_frame, orient="horizontal") # create a separator for the popular cards
         self.pop_separator.grid(row=1, column=0, sticky="ew") # pack the separator to fill the window
+
+        self.popular_frame.columnconfigure(1, weight=1)  
+        self.popular_frame.rowconfigure(1, weight=1)     
 
         self.pop_cards.grid(row=2, column=0, sticky="nsew") # pack the treeview widget to fill the window
         self.popular_cards_scrollbar.grid(row=2, column=1, sticky="ns") # pack the scrollbar to the right of the treeview widget
